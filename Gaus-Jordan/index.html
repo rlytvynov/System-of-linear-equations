@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gauss-Jordan Method</title>
+    <style>
+        input {
+            width: 25px;
+        }
+        table {
+            padding: 10px;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #result {
+            padding: 10px;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #answ {
+            padding: 3px;
+            border: 1px solid black;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gauss-Jordan Method </h1>
+    <form action="/" method="post">
+        <div>
+            <label for="row">Rows</label>
+            <input type="text" name = "row" id="row"> 
+
+            <label for="col">Cols</label>
+            <input type="text" name = "col" id="col">
+        </div>
+        <br>
+
+        <button type="submit" id = "getM">Submit</button>
+
+    </form>
+    <br>
+    <div id = "matrixI">
+
+    </div>
+    <br>
+    <div id = "answers">
+
+    </div>
+    <script>
+        document.querySelector('#getM').addEventListener('click', (e) => {
+            e.preventDefault();
+            const row = document.querySelector('#row').value;
+            const col = document.querySelector('#col').value;
+
+            fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        row,
+                        col
+                    }),
+                })
+                    .then((res) => {
+                        return res.json();
+                    })
+                    .then((data) => render(data));
+        });
+
+        function render(data) {
+            if(data.row && data.col) {
+                let resultedTable = '<form action = "/" method = "post"><table id = "hoursContainer">'
+                let rows = data.row
+                let cols = data.col
+                cols++
+                for (let i = 0; i < rows; i++) {     
+                    resultedTable += '<tr>'  
+                    for (let j = 0; j < cols; j++) {
+                        if(j < data.col - 1) {
+                            resultedTable += '<td><input type="text" class = "variables"> + </td>'
+                        } else if (j === data.col - 1) {
+                            resultedTable += '<td><input type="text" class = "variables"> = </td>'
+                        } else {
+                            resultedTable += '<td><input type="text" class = "answers"></td>'
+                        }
+                    }
+                    resultedTable += '</tr>' 
+                }
+                resultedTable += '</table><br><button type = "submit" id = "getR">Get result!</button></form>'
+                document.getElementById('matrixI').innerHTML = resultedTable
+                document.getElementById('answers').innerHTML = ''
+            }
+
+            document.querySelector('#getR').addEventListener('click', (e) => {
+                e.preventDefault(); 
+                var vars = document.getElementsByClassName("variables");
+                var answ = document.getElementsByClassName("answers");
+                const row = document.querySelector('#row').value;
+
+                let variables = []
+                for (let i = 0; i < vars.length; i++) {
+                    variables.push(vars[i].value);
+                }
+                
+                let answers = []
+                for (let i = 0; i < answ.length; i++) {
+                    answers.push(answ[i].value);
+                }
+
+                for (let i = 0; i < answ.length; i++) {
+                    console.log(answers[i])
+                }
+
+                fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        variables,
+                        answers,
+                        row
+                    }),
+                })
+                    .then((res) => {
+                        return res.json();
+                    })
+                    .then((data) => render(data));
+            });
+
+            if(data.a && data.b && data.n && data.steps) {
+                let result = '<h3>Result</h3><table id = "result">'
+                let arrLength = data.a.length
+                let brrLength = data.b.length
+                let row = data.n
+                document.getElementById('answers').innerHTML = data.steps
+                for (let i = 0; i < row; i++) {
+                    result += '<tr>'
+                    for (let j = 0; j < row; j++) {
+                        if(j + 1 === row) {
+                            result += `<td>${data.a[i][j]}||&emsp;</td>`
+                        } else {
+                            result += `<td>${data.a[i][j]}</td>`
+                        }
+                    }
+                    result += `<td id = "answ">${data.b[i].toFixed(3)}</td></tr>`
+                }
+                result += '</table>'
+                document.getElementById('answers').innerHTML += result
+            }
+        }
+
+    </script>
+</body>
+</html>

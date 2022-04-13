@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gauss Method </title>
+    <style>
+        input {
+            width: 25px;
+        }
+        table {
+            padding: 10px;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #result {
+            padding: 10px;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #results_td {
+            border: 1px solid black;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gauss Method </h1>
+    <form action="/" method="post">
+        <div>
+            <label for="row">Rows</label>
+            <input type="text" name = "row" id="row"> 
+
+            <label for="col">Cols</label>
+            <input type="text" name = "col" id="col">
+        </div>
+        <br>
+
+        <button type="submit" id = "getM">Submit</button>
+
+    </form>
+    <br>
+    <div id = "matrixI">
+
+    </div>
+    <br>
+    <div id = "answers">
+
+    </div>
+    <script>
+        document.querySelector('#getM').addEventListener('click', (e) => {
+            e.preventDefault();
+            const row = document.querySelector('#row').value;
+            const col = document.querySelector('#col').value;
+
+            fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        row,
+                        col
+                    }),
+                })
+                    .then((res) => {
+                        return res.json();
+                    })
+                    .then((data) => render(data));
+        });
+
+        function render(data) {
+            if(data.row && data.col) {
+                let resultedTable = '<form action = "/" method = "post"><table id = "hoursContainer">'
+                let rows = data.row
+                let cols = data.col
+                cols++
+                for (let i = 0; i < rows; i++) {     
+                    resultedTable += '<tr>'  
+                    for (let j = 0; j < cols; j++) {
+                        if(j < data.col - 1) {
+                            resultedTable += '<td><input type="text" class = "variables"> + </td>'
+                        } else if (j === data.col - 1) {
+                            resultedTable += '<td><input type="text" class = "variables"> = </td>'
+                        } else {
+                            resultedTable += '<td><input type="text" class = "variables"></td>'
+                        }
+                    }
+                    resultedTable += '</tr>' 
+                }
+                resultedTable += '</table><br><button type = "submit" id = "getR">Get result!</button></form>'
+                document.getElementById('matrixI').innerHTML = resultedTable
+                document.getElementById('answers').innerHTML = ''
+            }
+
+            document.querySelector('#getR').addEventListener('click', (e) => {
+                e.preventDefault(); 
+                var table = document.getElementsByClassName("variables");
+                const row = document.querySelector('#row').value;
+
+                let arr = []
+                for (let i = 0; i < table.length; i++) {
+                    arr.push(table[i].value);
+                }
+                
+                for (let i = 0; i < table.length; i++) {
+                    console.log(arr[i])
+                }
+
+                fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        arr,
+                        row
+                    }),
+                })
+                    .then((res) => {
+                        return res.json();
+                    })
+                    .then((data) => render(data));
+            });
+
+            if(data.arr && data.steps) {
+                document.getElementById('answers').innerHTML = data.steps
+                let result = '<h3>Result</h3><table id = "result">'
+                for (let i = 0; i < data.arr.length; i++) {
+                    result += `<tr><td> x${i+1} = ${data.arr[i]}</td></tr>`
+                }
+                result += '</table>'
+                document.getElementById('answers').innerHTML += result
+            }
+        }
+
+    </script>
+</body>
+</html>
